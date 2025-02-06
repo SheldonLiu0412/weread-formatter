@@ -1,0 +1,19 @@
+{
+    "id": "weread-formatter",
+    "name": "WeRead Formatter",
+    "version": "1.0.0",
+    "minAppVersion": "0.15.0",
+    "description": "一个用于格式化微信读书笔记并支持 AI 深度思考的 Obsidian 插件",
+    "author": "SnailShell",
+    "authorUrl": "https://snailsshell.com",
+    "fundingUrl": "",
+    "isDesktopOnly": false,
+    "repo": "SheldonLiu0412/weread-formatter",
+    "keywords": [
+        "weread",
+        "微信读书",
+        "笔记",
+        "AI",
+        "格式整理"
+    ]
+}
