@@ -3,7 +3,7 @@
     "name": "WeRead Formatter",
     "version": "1.0.0",
     "minAppVersion": "0.15.0",
-    "description": "一个用于格式化微信读书笔记并支持 AI 深度思考辅助复盘的插件",
+    "description": "一个用于格式化微信读书笔记并支持 AI 思考辅助个人复盘的插件",
     "author": "SnailsShell",
     "authorUrl": "https://snailsshell.com",
     "fundingUrl": "",
