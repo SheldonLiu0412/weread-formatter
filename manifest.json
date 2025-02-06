@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "minAppVersion": "0.15.0",
     "description": "一个用于格式化微信读书笔记并支持 AI 深度思考的 Obsidian 插件",
-    "author": "SnailShell",
+    "author": "SnailsShell",
     "authorUrl": "https://snailsshell.com",
     "fundingUrl": "",
     "isDesktopOnly": false,
