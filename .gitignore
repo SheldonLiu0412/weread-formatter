@@ -45,5 +45,5 @@ data.json
 
 # Keep necessary files
 !manifest.json
-!main.js
+main.js
 !styles.css

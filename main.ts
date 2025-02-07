@@ -113,8 +113,10 @@ class AIResponseModal extends Modal {
 
         // 添加加载动画
         const loadingEl = contentEl.createDiv('loading-container');
-        loadingEl.innerHTML = '<div class="loading-spinner"></div><div class="loading-text">🐌小蜗 正在阅读...</div>';
-
+        const loadingSpinner = loadingEl.createDiv('loading-spinner');
+        const loadingText = loadingEl.createDiv('loading-text');
+        loadingText.setText('🐌小蜗 正在阅读...');
+        
         try {
             const response = await this.aiService.askAI(this.quote, this.thought, this.bookName);
             loadingEl.remove();
@@ -124,39 +126,49 @@ class AIResponseModal extends Modal {
 
             // 添加原文区域
             const quoteSection = responseContainer.createDiv('quote-section');
-            quoteSection.createEl('h3', { text: '原文' }).addClass('section-title');
-            quoteSection.createDiv('quote-content').setText(this.quote.replace('🐌', '').trim());
+            const quoteTitle = quoteSection.createEl('h3');
+            quoteTitle.setText('原文');
+            quoteTitle.addClass('section-title');
+            const quoteContent = quoteSection.createDiv('quote-content');
+            quoteContent.setText(this.quote.replace('🐌', '').trim());
 
             // 添加读者想法区域
             if (this.thought) {
                 const thoughtSection = responseContainer.createDiv('thought-section');
-                thoughtSection.createEl('h3', { text: '读者想法' }).addClass('section-title');
-                thoughtSection.createDiv('thought-content').setText(this.thought);
+                const thoughtTitle = thoughtSection.createEl('h3');
+                thoughtTitle.setText('读者想法');
+                thoughtTitle.addClass('section-title');
+                const thoughtContent = thoughtSection.createDiv('thought-content');
+                thoughtContent.setText(this.thought);
             }
 
             // 添加AI回应区域
             const aiSection = responseContainer.createDiv('ai-section');
             const titleContainer = aiSection.createDiv('title-container');
-            const aiTitle = titleContainer.createEl('h3', { text: '小蜗思考' });
+            const aiTitle = titleContainer.createEl('h3');
+            aiTitle.setText('小蜗思考');
             aiTitle.addClass('section-title');
             
             // 添加复制按钮
             const copyButton = titleContainer.createEl('button', {
-                text: '复制',
                 cls: 'copy-button'
             });
+            copyButton.setText('复制');
             copyButton.addEventListener('click', async () => {
                 await navigator.clipboard.writeText(response);
-                const originalText = copyButton.textContent || '复制';
+                const originalText = copyButton.getText();
                 copyButton.setText('已复制!');
                 setTimeout(() => copyButton.setText(originalText), 2000);
             });
             
-            aiSection.createDiv('ai-content').setText(response);
+            const aiContent = aiSection.createDiv('ai-content');
+            aiContent.setText(response);
 
         } catch (error) {
             loadingEl.remove();
-            contentEl.createEl('p', { text: '获取 AI 响应时出错：' + error.message }).addClass('error-message');
+            const errorMessage = contentEl.createEl('p');
+            errorMessage.setText('获取 AI 响应时出错：' + error.message);
+            errorMessage.addClass('error-message');
         }
     }
 
@@ -199,23 +211,14 @@ class WeReadFormatterSettingTab extends PluginSettingTab {
         // 添加API配置提示
         const noticeEl = containerEl.createEl('div', {
             cls: 'setting-notice',
-            attr: {
-                style: 'background-color: var(--background-primary-alt); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--background-modifier-border);'
-            }
         });
         
         const warningIconEl = noticeEl.createEl('span', {
             text: '⚠️ ',
-            attr: {
-                style: 'font-size: 16px; margin-right: 8px;'
-            }
         });
         
         noticeEl.createEl('p', {
             text: '请先配置AI服务API信息，否则无法使用AI思考功能。配置完成后，在预览模式下将鼠标悬停在引用块上即可看到AI按钮。',
-            attr: {
-                style: 'margin: 0; color: var(--text-normal); display: inline;'
-            }
         });
 
         new Setting(containerEl)
@@ -330,7 +333,7 @@ class WeReadView extends ItemView {
             },
             {
                 icon: "🤔",
-                text: "切换至阅读模式，当鼠标悬停至原文时可见 AI 思考按钮"
+                text: "切换至阅读模式，当鼠标悬停至原文时可见 AI 按钮"
             }
         ];
 
@@ -455,10 +458,11 @@ class WeReadView extends ItemView {
                 // 如果已经有按钮，跳过
                 if (quote.querySelector('.ai-button')) return;
 
-                const button = document.createElement('button');
-                button.className = 'ai-button';
-                button.innerHTML = '🐌';
-                button.title = '请小蜗思考';
+                const button = createEl('button', {
+                    cls: 'ai-button',
+                    text: '🐌'
+                });
+                button.setAttr('title', '请小蜗思考');
                 
                 button.addEventListener('click', async (e) => {
                     e.stopPropagation();
@@ -505,6 +509,9 @@ export default class WeReadFormatter extends Plugin {
         // 加载设置
         await this.loadSettings();
         
+        // 加载样式文件
+        this.loadStyles();
+
         // 初始化 AI 服务
         this.aiService = new AIService(
             this.settings.apiUrl,
@@ -559,9 +566,6 @@ export default class WeReadFormatter extends Plugin {
             // 否则等待工作区准备就绪后再初始化
             this.app.workspace.onLayoutReady(() => this.initLeaf());
         }
-
-        // 添加样式
-        this.addStyle();
     }
 
     async loadSettings() {
@@ -599,258 +603,12 @@ export default class WeReadFormatter extends Plugin {
         }
     }
 
-    private addStyle() {
-        const styleEl = document.createElement('style');
-        styleEl.id = 'weread-formatter-styles';
-        styleEl.textContent = `
-            .weread-formatter-view {
-                padding: 20px;
-            }
-
-            .weread-formatter-header {
-                text-align: center;
-                margin-bottom: 30px;
-            }
-
-            .weread-formatter-description {
-                padding: 16px;
-                background: var(--background-secondary);
-                border-radius: 8px;
-                margin-bottom: 16px;
-            }
-
-            .weread-formatter-title {
-                margin: 0 0 16px 0;
-                color: var(--text-normal);
-                font-size: 1.4em;
-                font-weight: 600;
-                text-align: center;
-            }
-
-            .weread-formatter-guide {
-                margin-bottom: 16px;
-            }
-
-            .guide-title {
-                color: var(--text-normal);
-                font-size: 1.1em;
-                margin: 0 0 12px 0;
-                font-weight: 600;
-            }
-
-            .steps-container {
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
-            }
-
-            .step-item {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                padding: 8px;
-                background: var(--background-primary);
-                border-radius: 6px;
-                transition: all 0.2s ease;
-            }
-
-            .step-item:hover {
-                transform: translateX(4px);
-                background: var(--background-primary-alt);
-            }
-
-            .step-number {
-                background: var(--text-accent);
-                color: var(--text-on-accent);
-                width: 20px;
-                height: 20px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 0.8em;
-                font-weight: 600;
-            }
-
-            .step-icon {
-                font-size: 1.1em;
-            }
-
-            .step-text {
-                color: var(--text-normal);
-                font-size: 0.9em;
-                flex: 1;
-            }
-
-            .weread-formatter-tip {
-                margin-top: 16px;
-                padding: 12px;
-                background: var(--background-primary-alt);
-                border-radius: 6px;
-                border-left: 4px solid var(--text-accent);
-            }
-
-            .tip-text {
-                margin: 0;
-                color: var(--text-muted);
-                font-size: 0.9em;
-                line-height: 1.4;
-            }
-
-            .weread-formatter-buttons {
-                display: flex;
-                gap: 8px;
-                margin-top: 16px;
-            }
-
-            .weread-formatter-buttons button {
-                flex: 1;
-                padding: 8px 16px;
-                background: var(--interactive-accent);
-                color: var(--text-on-accent);
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                font-size: 0.9em;
-                font-weight: 500;
-            }
-
-            .weread-formatter-buttons button:hover {
-                opacity: 0.9;
-                transform: translateY(-1px);
-            }
-
-            /* AI 响应相关样式 */
-            .ai-response-modal {
-                padding: 24px;
-                max-width: 800px;
-                margin: 0 auto;
-            }
-
-            .response-container {
-                max-height: 70vh;
-                overflow-y: auto;
-                padding: 0 24px;
-                display: flex;
-                flex-direction: column;
-                gap: 20px;
-            }
-
-            .quote-section, .thought-section, .ai-section {
-                margin-bottom: 20px;
-                padding: 20px;
-                background: var(--background-modifier-form-field);
-                border-radius: 12px;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-                transition: all 0.3s ease;
-            }
-
-            .quote-section:hover, .thought-section:hover, .ai-section:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            }
-
-            .title-container {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 16px;
-            }
-
-            .section-title {
-                margin: 0;
-                color: var(--text-normal);
-                font-size: 1.2em;
-                font-weight: 600;
-                letter-spacing: 0.5px;
-            }
-
-            .quote-content, .thought-content, .ai-content {
-                margin: 0;
-                color: var(--text-muted);
-                line-height: 1.6;
-                font-size: 1.1em;
-            }
-
-            .loading-container {
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                height: 200px;
-                gap: 16px;
-            }
-
-            .loading-spinner {
-                border: 3px solid rgba(var(--text-accent-rgb), 0.1);
-                border-top: 3px solid var(--text-accent);
-                border-radius: 50%;
-                width: 48px;
-                height: 48px;
-                animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-            }
-
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-
-            .loading-text {
-                color: var(--text-normal);
-                font-size: 1.1em;
-                font-weight: 500;
-            }
-
-            .error-message {
-                color: var(--text-error);
-                padding: 16px;
-                border-radius: 8px;
-                background: rgba(var(--text-error-rgb), 0.1);
-            }
-
-            /* AI 按钮相关样式 */
-            .ai-button {
-                position: absolute;
-                right: -30px;
-                top: 50%;
-                transform: translateY(-50%);
-                background: transparent;
-                border: none;
-                cursor: pointer;
-                padding: 4px;
-                font-size: 1.2em;
-                opacity: 0;
-                transition: all 0.3s ease;
-                border-radius: 50%;
-            }
-
-            .ai-button:hover {
-                background: var(--background-modifier-hover);
-                transform: translateY(-50%) scale(1.1);
-            }
-
-            blockquote:hover .ai-button {
-                opacity: 1;
-            }
-
-            .copy-button {
-                font-size: 0.8em;
-                padding: 4px 8px;
-                border-radius: 4px;
-                border: 1px solid var(--text-muted);
-                background: transparent;
-                color: var(--text-muted);
-                cursor: pointer;
-                transition: all 0.2s ease;
-            }
-
-            .copy-button:hover {
-                background: var(--text-accent);
-                color: var(--text-on-accent);
-                border-color: var(--text-accent);
-            }
-        `;
+    // 加载样式文件
+    private loadStyles() {
+        // 加载插件的样式文件
+        const styleEl = document.createElement('link');
+        styleEl.rel = 'stylesheet';
+        styleEl.href = this.app.vault.adapter.getResourcePath('styles.css');
         document.head.appendChild(styleEl);
     }
 
@@ -1038,13 +796,6 @@ export default class WeReadFormatter extends Plugin {
     }
 
     onunload() {
-        // 关闭所有相关视图
-        this.app.workspace.detachLeavesOfType(VIEW_TYPE_WEREAD);
-        
-        // 移除样式
-        const styleEl = document.getElementById('weread-formatter-styles');
-        if (styleEl) {
-            styleEl.remove();
-        }
+        console.log('卸载微信读书格式化插件');
     }
 }
