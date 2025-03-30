@@ -225,7 +225,7 @@ class WeReadFormatterSettingTab extends PluginSettingTab {
             .setName('API URL')
             .setDesc('AI 服务的 API 地址')
             .addText(text => text
-                .setPlaceholder('输入 API URL')
+                .setPlaceholder('https://xxxxxx.com/v1/chat/completions')
                 .setValue(this.plugin.settings.apiUrl)
                 .onChange(async (value) => {
                     this.plugin.settings.apiUrl = value;
@@ -257,13 +257,25 @@ class WeReadFormatterSettingTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName('AI 提示词')
             .setDesc('设置 AI 响应的提示词模板')
-            .addTextArea(text => text
-                .setPlaceholder('输入提示词模板')
-                .setValue(this.plugin.settings.promptTemplate)
-                .onChange(async (value) => {
-                    this.plugin.settings.promptTemplate = value;
-                    await this.plugin.saveSettings();
-                }))
+            .addTextArea(text => {
+                text
+                    .setPlaceholder('输入提示词模板')
+                    .setValue(this.plugin.settings.promptTemplate)
+                    .onChange(async (value) => {
+                        this.plugin.settings.promptTemplate = value;
+                        await this.plugin.saveSettings();
+                    });
+                
+                // 设置文本框的样式
+                const textEl = text.inputEl;
+                textEl.addClass('weread-formatter-prompt');
+                textEl.rows = 6;
+                textEl.style.width = '100%';
+                textEl.style.minHeight = '150px';
+                textEl.style.resize = 'vertical';
+                
+                return text;
+            })
             .addExtraButton(button => button
                 .setIcon('reset')
                 .setTooltip('重置为默认值')

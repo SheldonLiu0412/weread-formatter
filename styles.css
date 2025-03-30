@@ -253,6 +253,24 @@ blockquote:hover .ai-button {
     border-color: var(--text-accent);
 }
 
+/* 提示词文本框样式 */
+.weread-formatter-prompt {
+    font-size: 14px;
+    line-height: 1.5;
+    font-family: var(--font-monospace);
+    background-color: var(--background-primary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+    padding: 8px;
+    margin-top: 8px;
+}
+
+.weread-formatter-prompt:focus {
+    border-color: var(--interactive-accent);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
+}
+
 /* 设置面板样式 */
 .setting-notice {
     background-color: var(--background-primary-alt);
